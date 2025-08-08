@@ -1,26 +1,80 @@
+/* ✅ Tailwind v4 방식 */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ❌ Tailwind v3 방식 (오류 발생) */
+/*@tailwind base;
+@tailwind components;*/
+/*@tailwind utilities;*/
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Theme (Light Mode) */
+    --background: 100% 0 0;
+    --foreground: 20% 0.01 250;
+    --card: 98% 0 0;
+    --border: 90% 0 0;
+    --foreground-muted-l: 40%;
+    --foreground-muted-c: 0.01;
+    --foreground-muted-h: 250;
+
+    /* Variables */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
+
+    --shadow-sm: 0 1px 2px 0 oklch(0% 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.1), 0 2px 4px -2px oklch(0% 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.1), 0 4px 6px -4px oklch(0% 0 0 / 0.1);
+  }
+
+  .dark {
+    /* Theme (Dark Mode) */
+    --background: 15% 0.01 250;
+    --foreground: 98% 0 0;
+    --card: 20% 0.01 250;
+    --border: 30% 0.01 250;
+    --foreground-muted-l: 70%;
+    --foreground-muted-c: 0;
+    --foreground-muted-h: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Tailwind v4 디자인 토큰 정의: 커스텀 유틸리티 생성의 기준 */
+@theme {
+  /* Colors (bg-*, text-*, border-*) */
+  --color-background: oklch(var(--background));
+  --color-foreground: oklch(var(--foreground));
+  --color-card: oklch(var(--card));
+  --color-border: oklch(var(--border));
+  --color-foreground-muted: oklch(var(--foreground-muted-l) var(--foreground-muted-c) var(--foreground-muted-h));
+
+  /* Typography */
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+
+  --text-hero: clamp(2rem, 5vw, 2.75rem);
+  --text-h1: 1.75rem;
+  --text-h2: 1.25rem;
+  --text-body: 1rem;
+  --text-caption: 0.875rem;
+
+  /* Radius & Shadow (선택적으로 커스터마이즈) */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+}
+
+/* 전역 기본 스타일 */
+@layer base {
+  body {
+    @apply bg-background text-foreground text-body font-sans;
+  }
 }
