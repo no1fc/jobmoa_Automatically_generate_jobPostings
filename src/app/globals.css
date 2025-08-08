@@ -1,21 +1,14 @@
-/* ✅ Tailwind v4 방식 */
 @import "tailwindcss";
-
-/* ❌ Tailwind v3 방식 (오류 발생) */
-/*@tailwind base;
-@tailwind components;*/
-/*@tailwind utilities;*/
-
 
 @layer base {
   :root {
-    /* Theme (Light Mode) */
+    /* Theme (Light Mode) - 더 부드럽고 우아한 색상 */
     --background: 100% 0 0;
-    --foreground: 20% 0.01 250;
+    --foreground: 15% 0.01 250;
     --card: 98% 0 0;
-    --border: 90% 0 0;
-    --foreground-muted-l: 40%;
-    --foreground-muted-c: 0.01;
+    --border: 92% 0.005 250;
+    --foreground-muted-l: 45%;
+    --foreground-muted-c: 0.005;
     --foreground-muted-h: 250;
 
     /* Variables */
@@ -24,26 +17,25 @@
     --radius-lg: 12px;
     --radius-full: 9999px;
 
-    --shadow-sm: 0 1px 2px 0 oklch(0% 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.1), 0 2px 4px -2px oklch(0% 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.1), 0 4px 6px -4px oklch(0% 0 0 / 0.1);
+    --shadow-sm: 0 1px 2px 0 oklch(0% 0 0 / 0.03);
+    --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.05), 0 2px 4px -2px oklch(0% 0 0 / 0.03);
+    --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.08), 0 4px 6px -4px oklch(0% 0 0 / 0.05);
   }
 
   .dark {
     /* Theme (Dark Mode) */
-    --background: 15% 0.01 250;
+    --background: 12% 0.01 250;
     --foreground: 98% 0 0;
-    --card: 20% 0.01 250;
-    --border: 30% 0.01 250;
-    --foreground-muted-l: 70%;
-    --foreground-muted-c: 0;
-    --foreground-muted-h: 0;
+    --card: 16% 0.01 250;
+    --border: 24% 0.01 250;
+    --foreground-muted-l: 65%;
+    --foreground-muted-c: 0.005;
+    --foreground-muted-h: 250;
   }
 }
 
-/* Tailwind v4 디자인 토큰 정의: 커스텀 유틸리티 생성의 기준 */
 @theme {
-  /* Colors (bg-*, text-*, border-*) */
+  /* Colors */
   --color-background: oklch(var(--background));
   --color-foreground: oklch(var(--foreground));
   --color-card: oklch(var(--card));
@@ -51,9 +43,9 @@
   --color-foreground-muted: oklch(var(--foreground-muted-l) var(--foreground-muted-c) var(--foreground-muted-h));
 
   /* Typography */
-  --font-sans: var(--font-sans);
-  --font-serif: var(--font-serif);
-  --font-mono: var(--font-mono);
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-serif: ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
 
   --text-hero: clamp(2rem, 5vw, 2.75rem);
   --text-h1: 1.75rem;
@@ -61,7 +53,7 @@
   --text-body: 1rem;
   --text-caption: 0.875rem;
 
-  /* Radius & Shadow (선택적으로 커스터마이즈) */
+  /* Radius & Shadow */
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
@@ -72,9 +64,65 @@
   --shadow-lg: var(--shadow-lg);
 }
 
-/* 전역 기본 스타일 */
 @layer base {
+  * {
+    @apply border-border;
+  }
+
   body {
-    @apply bg-background text-foreground text-body font-sans;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* 부드러운 스크롤 */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* 선택 텍스트 스타일 */
+  ::selection {
+    background-color: oklch(var(--foreground) / 0.1);
+  }
+}
+
+@layer utilities {
+  /* 사용자 정의 애니메이션 */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* 포커스 스타일 개선 */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-foreground/20 focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  /* 호버 효과 */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:translate-y-[-2px];
   }
 }

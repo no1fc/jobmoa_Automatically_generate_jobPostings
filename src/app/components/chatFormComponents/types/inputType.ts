@@ -3,7 +3,7 @@ import {ChangeEvent} from "react";
 /**
  * InputType
  *
- * @param title Input labels 제목
+ * @param title Input label 제목
  * @param type Input 속성중 글,파일,숫자,등을 지정
  * @param value Input 속성중 입력 값을 지정
  * @param onChange Input 값 변경 핸들러
@@ -26,6 +26,7 @@ export type InputType = {
 /**
  * TextArea
  *
+ * @param title TextArea label 제목
  * @param value TextArea 속성중 입력 값을 지정
  * @param onChange TextArea 값 변경 핸들러
  * @param classMethod TextArea class 값을 지정
@@ -36,6 +37,7 @@ export type InputType = {
  *
  */
 export type TextAreaType = {
+    title: string,
     value: string,
     onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void,
     classMethod: string,
