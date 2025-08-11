@@ -1,6 +1,8 @@
 import {Dispatch, SetStateAction, useState} from "react";
 
 interface FormState {
+    enterprise: string;
+    setEnterprise: Dispatch<SetStateAction<string>>;
     position: string;
     setPosition: Dispatch<SetStateAction<string>>;
     company: string;
@@ -20,6 +22,7 @@ interface FormState {
 }
 
 export function useFormState(): FormState {
+    const [enterprise, setEnterprise] = useState('');
     const [position, setPosition] = useState('');
     const [company, setCompany] = useState('');
     const [duties, setDuties] = useState('');
@@ -30,6 +33,8 @@ export function useFormState(): FormState {
     const [textAreaValue, setTextAreaValue] = useState('');
 
     return {
+        enterprise,
+        setEnterprise,
         position,
         setPosition,
         company,
