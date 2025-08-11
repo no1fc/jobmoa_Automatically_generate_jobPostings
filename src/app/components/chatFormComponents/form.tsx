@@ -119,7 +119,20 @@ export default function FormPage(){
             textAreaValue
         });
         //페이지 이동
-        window.location.href = '/jobmoa_Automatically_generate_jobPostings/test.html';
+        // window.location.href = '/jobmoa_Automatically_generate_jobPostings/test.html';
+        // window.location.href = '/test.html';
+        //비동기로 요청받은 데이터를 기반으로 화면을 보여줍니다.
+        getJobInfo(
+            enterprise,
+            position,
+            company,
+            duties,
+            requirements,
+            preferred,
+            benefits,
+            application,
+            textAreaValue).then(r => console.log(r));
+
     };
 
     const handleReset = () => {
@@ -285,4 +298,41 @@ export default function FormPage(){
             </form>
         </div>
     )
+}
+
+async function getJobInfo(
+    enterprise: string,
+    position: string,
+    company: string,
+    duties: string,
+    requirements: string,
+    preferred: string,
+    benefits: string,
+    application: string,
+    textAreaValue: string,) {
+    await fetch('https://api.jobmoa.com/v1/job/search', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer <KEY>'
+        },
+        body: JSON.stringify({
+            enterprise,
+            position,
+            company,
+            duties,
+            requirements,
+            preferred,
+            benefits,
+            application,
+            textAreaValue
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+    })
+    .catch(error => {
+        console.log(error);
+    });
 }
