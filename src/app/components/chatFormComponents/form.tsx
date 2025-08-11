@@ -3,11 +3,23 @@
 import './css/fromStyle.css'; // CSS 임포트 추가
 import {InputTag} from './InputTag';
 import {useFormState} from './formState/useFormState';
-import {BotMessageSquare, Briefcase, Building, CheckCircle, Gift, Mail, RotateCcw, Send, User} from 'lucide-react';
+import {
+    BotMessageSquare,
+    Briefcase,
+    Building,
+    Building2,
+    CheckCircle,
+    Gift,
+    Mail,
+    RotateCcw,
+    Send,
+    User
+} from 'lucide-react';
 import React from "react";
 
 export default function FormPage(){
     const {
+        enterprise, setEnterprise,
         position, setPosition,
         company, setCompany,
         duties, setDuties,
@@ -20,6 +32,14 @@ export default function FormPage(){
 
     // 섹션별로 분리하여 가독성 개선
     const basicInfoFields = [
+        {
+            title: '기업명',
+            id: 'enterprise',
+            name: 'enterprise',
+            icon: <Building2 className="w-4 h-4" />,
+            value: enterprise,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setEnterprise(e.target.value)
+        },
         {
             title: '채용 포지션',
             id: 'position',
@@ -88,6 +108,7 @@ export default function FormPage(){
         e.preventDefault();
         // 폼 제출 로직
         console.log({
+            enterprise,
             position,
             company,
             duties,
@@ -97,9 +118,12 @@ export default function FormPage(){
             application,
             textAreaValue
         });
+        //페이지 이동
+        window.location.href = '/test.html';
     };
 
     const handleReset = () => {
+        setEnterprise('');
         setPosition('');
         setCompany('');
         setDuties('');
