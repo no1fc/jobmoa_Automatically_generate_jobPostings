@@ -119,7 +119,7 @@ export default function FormPage(){
             textAreaValue
         });
         //페이지 이동
-        window.location.href = '/test.html';
+        window.location.href = '/jobmoa_Automatically_generate_jobPostings/test.html';
     };
 
     const handleReset = () => {
