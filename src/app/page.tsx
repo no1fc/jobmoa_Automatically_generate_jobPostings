@@ -29,7 +29,7 @@ function Header() {
                         <div className="p-2 bg-card rounded-md shadow-sm">
                             <BotMessageSquare className="w-5 h-5 text-foreground" />
                         </div>
-                        <span>ChatJD</span>
+                        <span>ChatJobmoa</span>
                     </Link>
                     <div className="flex items-center gap-6">
                         <div className="hidden md:flex items-center gap-6">
@@ -75,15 +75,12 @@ function HeroSection() {
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
                         <Link
-                            href="/chat-form"
+                            href="/chatForm"
                             className="w-full sm:w-auto px-8 py-3 bg-foreground text-background rounded-lg text-body font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                         >
                             무료로 시작하기
                             <ArrowRight className="w-4 h-4" />
                         </Link>
-                        <button className="w-full sm:w-auto px-8 py-3 bg-card border border-border text-foreground rounded-lg text-body font-semibold hover:bg-border/10 transition-colors">
-                            데모 보기
-                        </button>
                     </div>
 
                     <div className="relative max-w-4xl mx-auto">
@@ -92,10 +89,10 @@ function HeroSection() {
                                 <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                                 <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                                <span className="text-caption text-foreground-muted ml-4">ChatJD - AI 채용 공고 생성기</span>
+                                <span className="text-caption text-foreground-muted ml-4">ChatJobmoa - AI 채용 공고 생성기</span>
                             </div>
                             <Image
-                                src="https://placehold.co/800x500/f8fafc/64748b?text=AI+Chat+Interface"
+                                src="/mainPageImage/ChatJobmoa_create_gemini.png"
                                 alt="AI 챗봇 인터페이스"
                                 width={800}
                                 height={500}
@@ -113,8 +110,8 @@ function FeaturesSection() {
     const features = [
         {
             icon: <BotMessageSquare className="w-6 h-6" />,
-            title: "대화형 AI 생성",
-            description: "챗봇과 자연스러운 대화를 통해 채용 요구사항을 파악하고 맞춤형 공고를 생성합니다.",
+            title: "간단한 AI 프롬프트 생성",
+            description: "챗봇이 최소한의 정보로 채용 요구사항을 파악하고 맞춤형 공고를 생성합니다.",
         },
         {
             icon: <Zap className="w-6 h-6" />,
@@ -133,7 +130,7 @@ function FeaturesSection() {
             <div className="container mx-auto px-6">
                 <div className="max-w-3xl mx-auto text-center mb-16">
                     <h2 className="text-h1 font-sans mb-4">
-                        왜 ChatJD인가요?
+                        왜 ChatJobmoa인가요?
                     </h2>
                     <p className="text-body text-foreground-muted">
                         전문적인 채용 공고 작성이 이렇게 쉬워도 되나요?
@@ -161,17 +158,17 @@ function HowItWorksSection() {
         {
             title: "기본 정보 입력",
             description: "채용하려는 직무, 필요한 기술, 경력 수준 등을 챗봇에게 알려주세요.",
-            imgSrc: "https://placehold.co/600x400/f8fafc/64748b?text=Step+1",
+            imgSrc: "/mainPageImage/Default_Text_Input_gemini.png",
         },
         {
             title: "AI 분석 및 생성",
             description: "AI가 입력된 정보를 분석하여 최적화된 채용 공고를 자동으로 생성합니다.",
-            imgSrc: "https://placehold.co/600x400/f8fafc/64748b?text=Step+2",
+            imgSrc: "/mainPageImage/Analysis_and_Generation_gemini.png",
         },
         {
             title: "검토 및 완성",
             description: "생성된 공고를 검토하고 필요시 수정하여 완벽한 채용 공고를 완성합니다.",
-            imgSrc: "https://placehold.co/600x400/f8fafc/64748b?text=Step+3",
+            imgSrc: "/mainPageImage/Success_image_gemini.png",
         },
     ];
 
@@ -255,7 +252,7 @@ function CtaSection() {
                         가입이나 결제 없이 바로 이용 가능합니다.
                     </p>
                     <Link
-                        href="/chat-form"
+                        href="/chatForm"
                         className="inline-flex items-center gap-2 px-8 py-3 bg-foreground text-background rounded-lg text-body font-semibold hover:opacity-90 transition-opacity"
                     >
                         무료로 채용 공고 만들기
@@ -274,10 +271,10 @@ function Footer() {
                 <div className="flex flex-col md:flex-row items-center justify-between">
                     <div className="flex items-center gap-2 mb-4 md:mb-0">
                         <BotMessageSquare className="w-5 h-5" />
-                        <span className="text-h2 font-sans font-bold">ChatJD</span>
+                        <span className="text-h2 font-sans font-bold">ChatJobmoa</span>
                     </div>
                     <div className="text-caption text-foreground-muted text-center md:text-right">
-                        <p>&copy; {new Date().getFullYear()} ChatJD. All rights reserved.</p>
+                        <p>&copy; {new Date().getFullYear()} ChatJobmoa. All rights reserved.</p>
                         <p className="mt-1">AI 기반 채용 공고 생성 도구</p>
                     </div>
                 </div>
