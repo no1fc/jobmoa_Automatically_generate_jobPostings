@@ -4,34 +4,109 @@ import './css/fromStyle.css'; // CSS 임포트 추가
 import {InputTag} from './InputTag';
 import {useFormState} from './formState/useFormState';
 import {BotMessageSquare, Briefcase, Building, CheckCircle, Gift, Mail, RotateCcw, Send, User} from 'lucide-react';
+import React from "react";
 
 export default function FormPage(){
-    const {inputValue, setInputValue, textAreaValue, setTextAreaValue} = useFormState();
+    const {
+        position, setPosition,
+        company, setCompany,
+        duties, setDuties,
+        requirements, setRequirements,
+        preferred, setPreferred,
+        benefits, setBenefits,
+        application, setApplication,
+        textAreaValue, setTextAreaValue
+    } = useFormState();
 
     // 섹션별로 분리하여 가독성 개선
     const basicInfoFields = [
-        { title: '채용 포지션', id: 'position', name: 'position', icon: <Briefcase className="w-4 h-4" /> },
-        { title: '회사 소개', id: 'company', name: 'company', icon: <Building className="w-4 h-4" /> },
+        {
+            title: '채용 포지션',
+            id: 'position',
+            name: 'position',
+            icon: <Briefcase className="w-4 h-4" />,
+            value: position,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setPosition(e.target.value)
+        },
+        {
+            title: '회사 소개',
+            id: 'company',
+            name: 'company',
+            icon: <Building className="w-4 h-4" />,
+            value: company,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setCompany(e.target.value)
+        },
     ];
 
     const jobInfoFields = [
-        { title: '주요 업무', id: 'duties', name: 'duties', icon: <User className="w-4 h-4" /> },
-        { title: '자격 요건', id: 'requirements', name: 'requirements', icon: <CheckCircle className="w-4 h-4" /> },
+        {
+            title: '주요 업무',
+            id: 'duties',
+            name: 'duties',
+            icon: <User className="w-4 h-4" />,
+            value: duties,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDuties(e.target.value)
+        },
+        {
+            title: '자격 요건',
+            id: 'requirements',
+            name: 'requirements',
+            icon: <CheckCircle className="w-4 h-4" />,
+            value: requirements,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setRequirements(e.target.value)
+        },
     ];
 
     const benefitFields = [
-        { title: '우대 사항', id: 'preferred', name: 'preferred', icon: <Gift className="w-4 h-4" /> },
-        { title: '혜택 및 복지', id: 'benefits', name: 'benefits', icon: <Gift className="w-4 h-4" /> },
-        { title: '지원 방법 및 절차', id: 'application', name: 'application', icon: <Mail className="w-4 h-4" /> },
+        {
+            title: '우대 사항',
+            id: 'preferred',
+            name: 'preferred',
+            icon: <Gift className="w-4 h-4" />,
+            value: preferred,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setPreferred(e.target.value)
+        },
+        {
+            title: '혜택 및 복지',
+            id: 'benefits',
+            name: 'benefits',
+            icon: <Gift className="w-4 h-4" />,
+            value: benefits,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setBenefits(e.target.value)
+        },
+        {
+            title: '지원 방법 및 절차',
+            id: 'application',
+            name: 'application',
+            icon: <Mail className="w-4 h-4" />,
+            value: application,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setApplication(e.target.value)
+        },
     ];
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // 폼 제출 로직
+        console.log({
+            position,
+            company,
+            duties,
+            requirements,
+            preferred,
+            benefits,
+            application,
+            textAreaValue
+        });
     };
 
     const handleReset = () => {
-        setInputValue('');
+        setPosition('');
+        setCompany('');
+        setDuties('');
+        setRequirements('');
+        setPreferred('');
+        setBenefits('');
+        setApplication('');
         setTextAreaValue('');
     };
 
@@ -68,8 +143,8 @@ export default function FormPage(){
                                 <InputTag
                                     title={input.title}
                                     type="text"
-                                    value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
+                                    value={input.value}
+                                    onChange={input.onChange}
                                     classMethod=""
                                     id={input.id}
                                     name={input.name}
@@ -98,8 +173,8 @@ export default function FormPage(){
                                 <InputTag
                                     title={input.title}
                                     type="text"
-                                    value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
+                                    value={input.value}
+                                    onChange={input.onChange}
                                     classMethod=""
                                     id={input.id}
                                     name={input.name}
@@ -128,8 +203,8 @@ export default function FormPage(){
                                 <InputTag
                                     title={input.title}
                                     type="text"
-                                    value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
+                                    value={input.value}
+                                    onChange={input.onChange}
                                     classMethod=""
                                     id={input.id}
                                     name={input.name}
