@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     basePath: `/${repoName}`,
 
     // 2. output: 'export' 추가: 정적 사이트 빌드를 명시
-    // output: 'export',
+    output: 'export',
 
     images: {
         // 외부 이미지 호스트 허용 설정
