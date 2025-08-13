@@ -2,15 +2,15 @@
 
 import {useState} from 'react';
 import {ArrowRight, Heart, MessageCircle, Share2, Sparkles, Star, Upload} from 'lucide-react';
-import Button from './ui/ButtonComponentWithVariants';
-import Card from './ui/CardComponentWithVariants';
-import Input from './ui/InputComponentWithErrorHandling';
-import TextArea from './ui/TextAreaComponent';
-import {Body, BodyMuted, H1, H2} from './ui/TypographyComponents';
-import Link from './ui/LinkComponentWithVariants';
-import Grid from './ui/GridComponent';
-import Badge from './ui/BadgeComponent';
-import Navbar from './ui/NavbarWithMobileMenu';
+import Button from '@/app/components/ui/ButtonComponentWithVariants';
+import Card from '@/app/components/ui/CardComponentWithVariants';
+import Input from '@/app/components/ui/InputComponentWithErrorHandling';
+import TextArea from '@/app/components/ui/TextAreaComponent';
+import {Body, BodyMuted, H1, H2} from '@/app/components/ui/TypographyComponents';
+import Link from '@/app/components/ui/LinkComponentWithVariants';
+import Grid from '@/app/components/ui/GridComponent';
+import Badge from '@/app/components/ui/BadgeComponent';
+import Navbar from '@/app/components/ui/NavbarWithMobileMenu';
 
 export default function ComponentsPage() {
   const [inputValue, setInputValue] = useState('');
