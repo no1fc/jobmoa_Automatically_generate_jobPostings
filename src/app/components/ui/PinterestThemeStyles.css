@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  /* Pinterest Theme Colors */
+  --color-primary: #5472ff;
+  --color-primary-light: #8299ff;
+  --color-primary-dark: #3b5bdb;
+  --color-background: #FFFFFF;
+  --color-background-soft: #F8F9FF;
+  --color-text: #333333;
+  --color-text-light: #919191;
+  --border-radius: 16px;
+  /* Your existing variables */
+  --foreground: 0 0% 3.9%;
+  --foreground-muted-l: 64%;
+  --foreground-muted-c: 0;
+  --foreground-muted-h: 262;
+  --background: 0 0% 100%;
+  --card: 0 0% 100%;
+  --border: 0 0% 89.8%;
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  --radius-lg: 0.5rem;
+  --radius-md: calc(var(--radius-lg) - 2px);
+  --radius-sm: calc(var(--radius-md) - 2px);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --unit: 8px;
+}
+
+.dark {
+  --foreground: 0 0% 98%;
+  --foreground-muted-l: 64%;
+  --foreground-muted-c: 0;
+  --foreground-muted-h: 262;
+  --background: 0 0% 3.9%;
+  --card: 0 0% 3.9%;
+  --border: 0 0% 14.9%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  font-family: var(--font-sans), serif;
+}
+
+/* Pinterest Theme Custom Styles */
+.pinterest-button {
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+}
+
+.pinterest-button:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.pinterest-card {
+  background: var(--color-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.pinterest-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Masonry Layout Support */
+.masonry-grid {
+  column-count: auto;
+  column-width: 236px;
+  column-gap: 16px;
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 16px;
+}
