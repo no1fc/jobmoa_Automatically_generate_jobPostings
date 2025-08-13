@@ -31,10 +31,6 @@ function Header() {
         <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
             <div className="container mx-auto px-6 py-4">
                 <Navbar
-                    navItems={[
-                        { icon: '', href: '#features',label:'기능' },
-                        { icon: '', href: '#how-it-works',label:'사용법' },
-                    ]}
                     showAuth={false}
                 />
             </div>
@@ -64,7 +60,7 @@ function HeroSection() {
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
                         <Button variant="primary" size="lg" className="w-full sm:w-auto">
-                            <LinkComponent href="/chatForm" variant="ghost" className="text-inherit flex items-center">
+                            <LinkComponent href="/chatForm" variant="default" className="text-inherit flex items-center">
                                 무료로 시작하기
                                 <ArrowRight className="w-4 h-4 ml-2" />
                             </LinkComponent>
@@ -146,17 +142,17 @@ function HowItWorksSection() {
         {
             title: "기본 정보 입력",
             description: "채용하려는 직무, 필요한 기술, 경력 수준 등을 챗봇에게 알려주세요. 회사 이미지도 함께 업로드할 수 있습니다.",
-            imgSrc: "./mainPageImage/Default_Text_Input_gemini.png",
+            imgSrc: "/mainPageImage/Default_Text_Input_gemini.png",
         },
         {
             title: "AI 분석 및 생성",
             description: "AI가 입력된 정보와 이미지를 분석하여 최적화된 채용 공고를 자동으로 생성합니다.",
-            imgSrc: "./mainPageImage/Analysis_and_Generation_gemini.png",
+            imgSrc: "/mainPageImage/Analysis_and_Generation_gemini.png",
         },
         {
             title: "검토 및 완성",
             description: "생성된 공고를 검토하고 필요시 수정하여 완벽한 채용 공고를 완성합니다.",
-            imgSrc: "./mainPageImage/Success_image_gemini.png",
+            imgSrc: "/mainPageImage/Success_image_gemini.png",
         },
     ];
 
@@ -236,7 +232,7 @@ function CtaSection() {
                         가입이나 결제 없이 바로 이용 가능합니다.
                     </Body>
                     <Button variant="primary" size="lg">
-                        <LinkComponent href="/chatForm" variant="ghost" className="text-inherit flex items-center">
+                        <LinkComponent href="/chatForm" variant="default" className="text-inherit flex items-center">
                             무료로 채용 공고 만들기
                             <ArrowRight className="w-4 h-4 ml-2" />
                         </LinkComponent>

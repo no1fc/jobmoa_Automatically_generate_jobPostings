@@ -6,11 +6,11 @@ const nextConfig: NextConfig = {
   /* config options here */
     /* FIXME 변경하면서 사용 */
     // 1. basePath 추가: 저장소 이름을 값으로 설정
-    basePath: `/${repoName}`,
+    // basePath: `/${repoName}`,
 
     /* FIXME 변경하면서 사용 */
     // 2. output: 'export' 추가: 정적 사이트 빌드를 명시
-    output: 'export',
+    // output: 'export',
 
     images: {
         // 외부 이미지 호스트 허용 설정
