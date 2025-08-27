@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIRI COMPANY 경력사원 채용 공고</title>
+    <style>
+        /* --- 기본 스타일 및 폰트 설정 --- */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+
+        :root {
+            --color-primary: #1f2a59; /* 메인 네이비 */
+            --color-accent: #f39c12;  /* 포인트 오렌지 */
+            --color-text: #333333;
+            --color-light-bg: #f5f7fa;
+            --color-white: #ffffff;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--color-text);
+            line-height: 1.7;
+            background-color: var(--color-white);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--color-primary);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 60px;
+        }
+
+        /* --- 헤더 (메인 비주얼) --- */
+        .hero-header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://picsum.photos/seed/workplace/1200/800');
+            background-size: cover;
+            background-position: center;
+            color: var(--color-white);
+            text-align: center;
+            padding: 100px 20px; /* 로고 추가로 패딩 조정 */
+        }
+
+        /* 추가됨: 기업 로고 스타일 */
+        .hero-header .logo {
+            width: 150px;
+            margin-bottom: 20px;
+            filter: brightness(0) invert(1); /* 로고를 흰색으로 만듦 */
+        }
+
+        .hero-header h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            word-break: keep-all;
+        }
+
+        .hero-header .company-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            margin-top: 10px;
+        }
+
+        /* --- 기업소개 (텍스트) --- */
+        .company-intro-section {
+            background-color: var(--color-light-bg);
+        }
+
+        .intro-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .intro-text {
+            flex: 1;
+        }
+
+        .intro-text h3 {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+        }
+
+        .intro-image {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .intro-image img {
+            width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* --- 모집 부문 --- */
+        /* 수정됨: 4개의 카드를 위한 그리드 설정 */
+        .jobs-section .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .job-card {
+            background: var(--color-white);
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            padding: 30px;
+        }
+
+        .job-card h3 {
+            color: var(--color-primary);
+            border-left: 4px solid var(--color-accent);
+            padding-left: 10px;
+            margin-bottom: 15px;
+        }
+
+        .job-card ul {
+            list-style-position: inside;
+        }
+
+        /* --- 채용절차 --- */
+        .process-section {
+            background-color: var(--color-light-bg);
+        }
+
+        .process-wrapper {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            text-align: center;
+        }
+
+        .process-step {
+            flex-basis: 18%;
+            position: relative;
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 4px solid var(--color-white);
+            box-shadow: 0 0 0 4px var(--color-primary);
+        }
+
+        .process-step h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            word-break: keep-all;
+        }
+
+        .process-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            top: 40px;
+            right: -25%;
+            transform: translateY(-50%);
+            font-size: 2.5rem;
+            color: var(--color-accent);
+        }
+
+        /* --- 복지 및 혜택 --- */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .benefit-card {
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex; /* 추가됨: 카드 내부 정렬 개선 */
+            flex-direction: column; /* 추가됨: 카드 내부 정렬 개선 */
+            align-items: center; /* 추가됨: 카드 내부 정렬 개선 */
+            justify-content: flex-start; /* 추가됨: 카드 내부 정렬 개선 */
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+        }
+
+        .benefit-card img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        /* 추가됨: 혜택 카드 제목 스타일 */
+        .benefit-card h4 {
+            margin-bottom: 10px;
+        }
+
+        /* --- 기업소개 (이미지 갤러리) --- */
+        .company-gallery-section {
+            background-color: var(--color-white);
+        }
+
+        .company-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .company-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .company-card img:hover {
+            transform: scale(1.05);
+        }
+
+        /* --- 푸터 (지원방법 및 문의) --- */
+        footer {
+            background-color: var(--color-light-bg);
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer-card {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            background-color: var(--color-white);
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            padding: 30px;
+        }
+
+        .footer-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-card li {
+            margin-bottom: 10px;
+        }
+
+        .apply-button-wrapper{
+            text-align: center;
+        }
+
+        .apply-button {
+            display: inline-block;
+            background-color: var(--color-accent);
+            color: var(--color-primary);
+            padding: 15px 30px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            transition: background-color 0.3s;
+        }
+
+        .apply-button:hover {
+            background-color: #ffc107;
+        }
+
+        /* --- 반응형 디자인 --- */
+        @media (max-width: 992px) {
+            .company-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h2 { font-size: 2rem; }
+            .hero-header h1 { font-size: 2.5rem; }
+
+            .intro-wrapper {
+                flex-direction: column;
+            }
+
+            .jobs-section .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .process-wrapper {
+                align-items: center;
+                flex-direction: column;
+                gap: 50px;
+            }
+            .process-step:not(:last-child)::after {
+                content: '↓';
+                top: auto;
+                bottom: -52px;
+                right: 50%;
+                transform: translateX(50%);
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .company-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="hero-header">
+    <img src="http://www.jobmoa.com/skin/basic_edu_a/upload/happy_skin/1623127711_05063000.png" alt="미리컴퍼니 로고" class="logo">
+    <h1>함께 성장할 당신을 기다립니다</h1>
+    <p class="company-name">MIRI COMPANY 백엔드 개발자 경력사원 채용</p>
+</header>
+
+<main>
+    <section id="company-intro" class="company-intro-section">
+        <div class="container">
+            <div class="intro-wrapper">
+                <div class="intro-text">
+                    <h3>최고의 동료들과 함께<br>세상을 혁신합니다.</h3>
+                    <p>미리컴퍼니는 '기술로 더 나은 내일을 만든다'는 비전 아래, 각 분야 최고의 전문가들이 모여 자유로운 환경에서 사용자의 삶을 혁신하는 서비스를 만들어가고 있습니다. 우리는 수평적인 문화 속에서 투명하게 소통하며, 동료의 성장을 지원하고 함께 성공의 기쁨을 나눕니다.</p>
+                </div>
+                <div class="intro-image">
+                    <img src="https://picsum.photos/seed/meeting/600/400" alt="협업하는 미리컴퍼니 팀원들">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="job-description" class="jobs-section">
+        <div class="container">
+            <h2>모집 부문</h2>
+            <p class="section-subtitle">Spring MVC 기반의 백엔드 시스템을 함께 발전시켜나갈 동료를 찾습니다.</p>
+            <div class="grid">
+                <div class="job-card">
+                    <h3>주요업무</h3>
+                    <ul>
+                        <li>Spring MVC 기반 서비스 API 개발 및 운영</li>
+                        <li>MSSQL 데이터베이스 설계 및 튜닝</li>
+                        <li>MSA 전환을 위한 시스템 분석 및 설계 참여</li>
+                        <li>안정적인 서비스 운영을 위한 모니터링 및 자동화</li>
+                    </ul>
+                </div>
+                <div class="job-card">
+                    <h3>자격요건</h3>
+                    <ul>
+                        <li>Java & Spring Framework 3년 이상 경험</li>
+                        <li>Restful API 설계 및 개발 경험</li>
+                        <li>MSSQL 등 RDBMS에 대한 깊은 이해</li>
+                        <li>Git 기반의 협업 및 코드 리뷰 경험</li>
+                    </ul>
+                </div>
+                <div class="job-card">
+                    <h3>우대사항</h3>
+                    <ul>
+                        <li>대용량 트래픽 서비스 개발/운영 경험</li>
+                        <li>Spring Boot, JPA, QueryDSL 사용 경험</li>
+                        <li>AWS, Docker 등 클라우드/컨테이너 경험</li>
+                        <li>코드 개선 및 리뷰에 적극적인 분</li>
+                    </ul>
+                </div>
+                <div class="job-card">
+                    <h3>근무조건</h3>
+                    <ul>
+                        <li>근무형태: 정규직 (수습 3개월)</li>
+                        <li>급여: 면접 후 결정 (업계 최고 대우)</li>
+                        <li>근무지: 서울시 미리구 미리대로 123</li>
+                        <li>근무시간: 주 5일, 10시-19시</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="hiring-process" class="process-section">
+        <div class="container">
+            <h2>채용절차</h2>
+            <p class="section-subtitle">다음과 같은 과정을 통해 최고의 동료를 신중하게 모십니다.</p>
+            <div class="process-wrapper">
+                <div class="process-step">
+                    <div class="step-icon">1</div>
+                    <h4>서류전형</h4>
+                </div>
+                <div class="process-step">
+                    <div class="step-icon">2</div>
+                    <h4>코딩테스트</h4>
+                </div>
+                <div class="process-step">
+                    <div class="step-icon">3</div>
+                    <h4>1차 실무 면접</h4>
+                </div>
+                <div class="process-step">
+                    <div class="step-icon">4</div>
+                    <h4>2차 임원 면접</h4>
+                </div>
+                <div class="process-step">
+                    <div class="step-icon">★</div>
+                    <h4>최종합격</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="benefits">
+        <div class="container">
+            <h2>복지 및 혜택</h2>
+            <p class="section-subtitle">업무에 온전히 집중할 수 있도록 최고의 환경을 제공합니다.</p>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <img src="https://picsum.photos/seed/food/100/100" alt="식사 제공 아이콘">
+                    <h4>최고급 식사 제공</h4>
+                    <p>점심, 저녁 식사는 물론<br>다양한 간식 무제한 제공</p>
+                </div>
+                <div class="benefit-card">
+                    <img src="https://picsum.photos/seed/health/100/100" alt="건강 지원 아이콘">
+                    <h4>건강 관리 지원</h4>
+                    <p>매년 종합 건강검진<br>및 단체 상해 보험 지원</p>
+                </div>
+                <div class="benefit-card">
+                    <img src="https://picsum.photos/seed/growth/100/100" alt="성장 지원 아이콘">
+                    <h4>업무 역량 성장</h4>
+                    <p>업무 관련 도서, 세미나<br>및 교육 비용 100% 지원</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gov-benefits" class="company-intro-section">
+        <div class="container">
+            <h2>중소기업 취업자 정부 지원 혜택</h2>
+            <p class="section-subtitle">회사의 복지 외에 국가에서 제공하는 혜택도 놓치지 마세요.</p>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <img src="https://picsum.photos/seed/tax/100/100" alt="세금 아이콘">
+                    <h4>청년 소득세 감면</h4>
+                    <p>취업 후 5년간 소득세의 90%를 감면받을 수 있습니다. (연 200만원 한도)</p>
+                </div>
+                <div class="benefit-card">
+                    <img src="https://picsum.photos/seed/money/100/100" alt="저축 아이콘">
+                    <h4>청년내일채움공제</h4>
+                    <p>2년간 400만원을 저축하면 정부와 기업 지원으로 1,200만원의 목돈 마련</p>
+                </div>
+                <div class="benefit-card">
+                    <img src="https://picsum.photos/seed/house/100/100" alt="집 아이콘">
+                    <h4>중소기업 취업청년<br>전월세 보증금 대출</h4>
+                    <p>저렴한 이자로 최대 1억원까지 전월세 보증금을 대출받을 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="company-gallery" class="company-gallery-section">
+        <div class="container">
+            <h2>기업 문화</h2>
+            <p class="section-subtitle">우리는 이렇게 일하고 생활합니다.</p>
+            <div class="company-grid">
+                <div class="company-card">
+                    <img src="https://picsum.photos/seed/office1/400/300" alt="자유로운 사무 공간">
+                </div>
+                <div class="company-card">
+                    <img src="https://picsum.photos/seed/office2/400/300" alt="팀원들의 휴식 공간">
+                </div>
+                <div class="company-card">
+                    <img src="https://picsum.photos/seed/office3/400/300" alt="사내 세미나 진행 모습">
+                </div>
+                <div class="company-card">
+                    <img src="https://picsum.photos/seed/office4/400/300" alt="사내 동호회 활동">
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="container">
+        <h2>지원방법 및 문의</h2>
+        <p class="section-subtitle">미리컴퍼니와 함께할 여정에 지금 바로 동참하세요.</p>
+        <div class="footer-card">
+            <h3>인사 채용 담당자</h3>
+            <ul>
+                <li><strong>담당자</strong>: XXX 인사 팀장</li>
+                <li><strong>이메일</strong>: recruit@miricompany.com</li>
+                <li><strong>연락처</strong>: 010-1234-1234</li>
+                <li><strong>지원방법</strong>: 잡코리아, 사람인 또는 이메일 지원</li>
+            </ul>
+        </div>
+        <div class="apply-button-wrapper">
+            <a href="mailto:recruit@miricompany.com" class="apply-button">이메일로 지원하기</a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
