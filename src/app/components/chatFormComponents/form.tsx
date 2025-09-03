@@ -17,6 +17,9 @@ import Select, {
     industryOptions
 } from '@/app/components/ui/SelectComponent';
 import Image from "next/image";
+// 상단 import 목록에 추가
+import html2canvas from 'html2canvas';
+
 
 //FIXME 임시 데이터
 const generateTestJobPostingData = (companyName: string = '코스모이엔지(주)', position: string = '자동차 제조 부품 영업물류 경력직') => {
@@ -92,13 +95,15 @@ interface JobPostingRequest {
 }
 
 interface JobPostingResponse {
-    success: boolean;
     data?: {
-        jobPosting: string;
-        htmlContent: string;
-        id: string;
+        message: string;
+        htmlCode: string;
+        metadata: {
+            applied_tone: string;
+            generated_keywords: string;
+        };
     };
-    error?: string;
+    status?: string;
 }
 
 export default function FormPage() {
@@ -107,6 +112,8 @@ export default function FormPage() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [showResult, setShowResult] = useState(false);
     const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
+    // FormPage 컴포넌트 내부 최상단 훅 영역에 추가
+    const jobPostingCaptureRef = useRef<HTMLDivElement>(null);
 
     /**
      * 필수 필드 검증 함수
@@ -147,7 +154,7 @@ export default function FormPage() {
 
         // 기업 소개 이미지들 추가
         requestData.uploadedImages.forEach((image, index) => {
-            formData.append(`company_introduction_image_${index}`, image);
+            formData.append(`company_introduction_image`, image);
         });
 
         //콘솔 로고 추가.
@@ -155,20 +162,17 @@ export default function FormPage() {
             console.log(`${key}: ${value}`);
         }
 
-        console.log(formData);
-
-        console.log(JSON.stringify(formData))
-
         try {
             const responseData = await fetch('http://localhost:3001/api/gemini', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
+                body: formData
             })
 
-            return responseData.json();
+            const data = await responseData.json();
+
+            console.log(data);
+
+            return data;
 
             // return {
             //     success: true,
@@ -181,8 +185,7 @@ export default function FormPage() {
         } catch (error) {
             console.error('채용 공고 생성 API 오류:', error);
             return {
-                success: false,
-                error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
+                status: "fail"
             };
         }
     };
@@ -207,14 +210,17 @@ export default function FormPage() {
 
             const result = await createJobPostingAPI(requestData);
 
-            if (result.success && result.data) {
-                setGeneratedJobPosting(result.data.jobPosting);
+            console.log(result);
+            const { test } = result;
+
+            if (test.status == "success") {
+                setGeneratedJobPosting(test.htmlCode);
                 setShowResult(true);
 
                 const successMessage: ChatMessage = {
                     id: messages.length + 1,
                     type: 'assistant',
-                    content: '🎉 채용 공고가 성공적으로 생성되었습니다! 아래에서 결과를 확인해주세요.',
+                    content: test.message,
                     timestamp: new Date(),
                 };
                 setMessages(prev => [...prev, successMessage]);
@@ -225,7 +231,7 @@ export default function FormPage() {
                     });
                 }, 100);
             } else {
-                const errorMessage = result.error || '채용 공고 생성에 실패했습니다.';
+                const errorMessage = '채용 공고 생성에 실패했습니다.';
                 alert(errorMessage);
             }
         } catch (error) {
@@ -247,18 +253,7 @@ export default function FormPage() {
         let fileName = `채용공고_${formData.companyName}_${formData.position}`;
 
         if (format === 'html') {
-            content = `
-            <!DOCTYPE html>
-            <html lang="ko">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${formData.companyName} - ${formData.position} 채용</title>
-            </head>
-            <body>
-                ${generatedJobPosting}
-            </body>
-            </html>`;
+            // content = generatedJobPosting;
             mimeType = 'text/html';
             fileName += '.html';
         } else {
@@ -299,10 +294,18 @@ export default function FormPage() {
                         <Button variant="outline" size="sm" onClick={() => downloadJobPosting('html')}>
                             HTML 다운로드
                         </Button>
+                        <Button variant="outline" size="sm" onClick={() => downloadJobPostingImage('png')}>
+                            PNG 다운로드
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => downloadJobPostingImage('jpg')}>
+                            JPG 다운로드
+                        </Button>
                     </div>
+
                 </div>
 
                 <div
+                    ref={jobPostingCaptureRef}
                     className="bg-card border border-border rounded-lg p-6 max-h-96 overflow-y-auto"
                     dangerouslySetInnerHTML={{ __html: generatedJobPosting }}
                 />
@@ -314,21 +317,72 @@ export default function FormPage() {
                     }}>
                         다시 생성하기
                     </Button>
-                    <Button variant="primary" onClick={() => {
+{/*                    <Button variant="primary" onClick={() => {
                         alert('사람인, 잡코리아 등의 채용 사이트 연동 기능을 추가할 예정입니다.');
                     }}>
                         채용 사이트에 등록하기
-                    </Button>
+                    </Button>*/}
                 </div>
             </Card>
         );
     };
 
+    // PNG/JPG 이미지 다운로드 함수
+    const downloadJobPostingImage = async (format: 'png' | 'jpg') => {
+        if (!generatedJobPosting) return;
+        const node = jobPostingCaptureRef.current;
+        if (!node) return;
+
+        // 스크롤 영역 전체 캡처를 위해 임시로 스타일 조정
+        const prevMaxHeight = node.style.maxHeight;
+        const prevOverflow = node.style.overflow;
+        // oklch 파싱 이슈 회피용 호환 클래스 적용
+        node.classList.add('capture-compat');
+        node.style.maxHeight = 'none';
+        node.style.overflow = 'visible';
+
+        try {
+            const canvas = await html2canvas(node, {
+                useCORS: true,                           // 외부 이미지(CORS) 허용 시도
+                backgroundColor: format === 'jpg' ? '#ffffff' : null, // JPG는 투명 불가
+                scale: Math.max(2, window.devicePixelRatio || 1),     // 선명도 향상
+                logging: false,
+            });
+
+            const mime = format === 'png' ? 'image/png' : 'image/jpeg';
+            const fileName = `채용공고_${formData.companyName}_${formData.position}.${format}`;
+
+            canvas.toBlob(
+                (blob) => {
+                    if (!blob) return;
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                },
+                mime,
+                format === 'jpg' ? 0.92 : undefined // JPG 품질(0~1)
+            );
+        } finally {
+            // 원복
+            node.classList.remove('capture-compat');
+
+            // 원래 스타일 복원
+            node.style.maxHeight = prevMaxHeight;
+            node.style.overflow = prevOverflow;
+        }
+    };
+
+
     // AI 챗봇의 초기 환영 메시지 정의
     const chatBotStartMessage: ChatMessage = {
         id: 1,
         type: 'assistant',
-        content: '안녕하세요! 채용 공고 작성을 도와드리겠습니다. 회사명과 채용하고자 하는 포지션을 알려주세요.',
+        content: '안녕하세요! 채용 공고 작성을 도와드리겠습니다.',
         timestamp: new Date(),
     };
 
