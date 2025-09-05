@@ -2,7 +2,7 @@
 
 // React 훅과 아이콘, UI 컴포넌트 임포트
 import {useRef, useState} from 'react';
-import {BotMessageSquare, Building2, CheckCircle, ImageIcon, RefreshCw, Send, Star, Upload, X} from 'lucide-react';
+import {BotMessageSquare, Building2, CheckCircle, ImageIcon, RefreshCw, Send, Upload, X} from 'lucide-react';
 import {Body, BodyMuted, H2} from '@/app/components/ui/TypographyComponents';
 import Button from '@/app/components/ui/ButtonComponentWithVariants';
 import Input from '@/app/components/ui/InputComponentWithErrorHandling';
@@ -18,10 +18,11 @@ import Select, {
 } from '@/app/components/ui/SelectComponent';
 import Image from "next/image";
 // 상단 import 목록에 추가
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 
 
 //FIXME 임시 데이터
+/*
 const generateTestJobPostingData = (companyName: string = '코스모이엔지(주)', position: string = '자동차 제조 부품 영업물류 경력직') => {
     const testHtmlContent = `
             <div style="width: 100%; font-family: 'Pretendard', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif; background-color: #FFFFFF;">
@@ -43,9 +44,10 @@ const generateTestJobPostingData = (companyName: string = '코스모이엔지(�
     return {
         jobPosting: testHtmlContent,
         htmlContent: testHtmlContent,
-        id: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        id: `job_${Date.now()}_${Math.random().toString(36)}`
     };
 };
+*/
 
 // 채팅 메시지 인터페이스 정의
 interface ChatMessage {
@@ -74,7 +76,15 @@ interface FormData {
     keyMessage: string;             // 핵심 강조 메시지
     company_introduction_image?: File[];  // 기업 소개 이미지
     company_logo_image?: File;      // 기업 로고 파일
+
+    // === 추가: 선택 항목 ===
+    ceoName: string;                       // 대표자
+    businessRegistrationNumber: string;    // 사업자등록번호
+    recruiterEmail: string;                // 채용 담당자 이메일
+    recruiterPhone: string;                // 채용 담당자 전화
+    address: string;                       // 주소
 }
+
 
 // 브랜딩 톤 옵션
 const brandingToneOptions = [
@@ -158,9 +168,9 @@ export default function FormPage() {
         });
 
         //콘솔 로고 추가.
-        for (const [key, value] of formData.entries()) {
+/*        for (const [key, value] of formData.entries()) {
             console.log(`${key}: ${value}`);
-        }
+        }*/
 
         try {
             const responseData = await fetch('http://localhost:3001/api/gemini', {
@@ -168,12 +178,12 @@ export default function FormPage() {
                 body: formData
             })
 
-            const data = await responseData.json();
+            console.log("데이터 송신완료");
+            const contentType = responseData.headers.get('content-type');
+            const data = contentType?.includes('application/json') ? await responseData.json() : await responseData.text();
 
-            console.log(data);
-
-            return data;
-
+            console.log('API raw response:', data);
+            return data
             // return {
             //     success: true,
             //     data: {
@@ -210,17 +220,19 @@ export default function FormPage() {
 
             const result = await createJobPostingAPI(requestData);
 
-            console.log(result);
-            const { test } = result;
+            // console.log(result);
+            const { text } = result;
+            
+            const jsonData = JSON.parse(text);
 
-            if (test.status == "success") {
-                setGeneratedJobPosting(test.htmlCode);
+            if (jsonData.status == "success") {
+                setGeneratedJobPosting(jsonData.htmlCode);
                 setShowResult(true);
 
                 const successMessage: ChatMessage = {
                     id: messages.length + 1,
                     type: 'assistant',
-                    content: test.message,
+                    content: jsonData.message,
                     timestamp: new Date(),
                 };
                 setMessages(prev => [...prev, successMessage]);
@@ -393,7 +405,7 @@ export default function FormPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [logoFile, setLogoFile] = useState<File | null>(null);
 
-    // 폼 입력 데이터 상태
+// 폼 입력 데이터 상태
     const [formData, setFormData] = useState<FormData>({
         companyName: '',
         companyType: '',
@@ -411,8 +423,16 @@ export default function FormPage() {
         brandingTone: '',
         keyMessage: '',
         company_introduction_image: [],
-        company_logo_image: undefined
+        company_logo_image: undefined,
+
+        // === 추가: 선택 항목 초기값 ===
+        ceoName: '',
+        businessRegistrationNumber: '',
+        recruiterEmail: '',
+        recruiterPhone: '',
+        address: '',
     });
+
 
     // === ref 객체들 ===
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -539,9 +559,17 @@ export default function FormPage() {
             brandingTone: '',
             keyMessage: '',
             company_introduction_image: [],
-            company_logo_image: undefined
+            company_logo_image: undefined,
+
+            // === 추가: 선택 항목 초기화 ===
+            ceoName: '',
+            businessRegistrationNumber: '',
+            recruiterEmail: '',
+            recruiterPhone: '',
+            address: '',
         });
     };
+
 
     return (
         <div className="space-y-6">
@@ -581,8 +609,8 @@ export default function FormPage() {
                     </div>
                 </div>
 
-                {/* 회사명과 채용 직무 */}
-                <Grid columns={{ default: 1, md: 2 }} gap="md" className="mb-6">
+                {/* === 추가: 연락/사업자 정보 === */}
+                <Grid columns={{ default: 1, md: 3 }} gap="md" className="mb-6">
                     <Input
                         id="companyName"
                         label="회사명"
@@ -592,12 +620,56 @@ export default function FormPage() {
                         error={formErrors.companyName as string}
                     />
                     <Input
+                        id="ceoName"
+                        label="대표자"
+                        placeholder="대표자 성함을 입력해주세요"
+                        value={formData.ceoName}
+                        onChange={(e) => handleInputChange('ceoName', e.target.value)}
+                    />
+                    <Input
+                        id="businessRegistrationNumber"
+                        label="사업자등록번호"
+                        placeholder="예: 123-45-67890"
+                        value={formData.businessRegistrationNumber}
+                        onChange={(e) => handleInputChange('businessRegistrationNumber', e.target.value)}
+                    />
+                </Grid>
+
+                <Grid className="mb-6 " variant="oneColumn">
+                    <Input
+                        id="address"
+                        label="주소"
+                        placeholder="사업장 주소를 입력해주세요"
+                        value={formData.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                    />
+                </Grid>
+
+
+                {/* 채용 직무 및 담당자 정보 */}
+                <Grid columns={{ default: 1, md: 2 }} gap="md" className="mb-6">
+                    <Input
                         id="position"
                         label="채용 직무"
                         placeholder="채용하고자 하는 직무를 입력해주세요"
                         value={formData.position}
                         onChange={(e) => handleInputChange('position', e.target.value)}
                         error={formErrors.position as string}
+                    />
+                    <Input
+                        id="recruiterEmail"
+                        label="채용 담당자 이메일"
+                        placeholder="예: recruit@example.com"
+                        value={formData.recruiterEmail}
+                        onChange={(e) => handleInputChange('recruiterEmail', e.target.value)}
+                        type="email"
+                    />
+                    <Input
+                        id="recruiterPhone"
+                        label="채용 담당자 전화"
+                        placeholder="예: 010-1234-5678"
+                        value={formData.recruiterPhone}
+                        onChange={(e) => handleInputChange('recruiterPhone', e.target.value)}
                     />
                 </Grid>
 
@@ -637,6 +709,7 @@ export default function FormPage() {
                     />
                 </Grid>
 
+
                 {/* 자격 요건 (필수) */}
                 <TextArea
                     id="requirements"
@@ -647,116 +720,6 @@ export default function FormPage() {
                     error={formErrors.requirements as string}
                     rows={4}
                 />
-            </Card>
-
-            {/* ===== 회사 정보 섹션 ===== */}
-            <Card variant="default" className="p-6">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-blue-500 text-white rounded-lg">
-                        <BotMessageSquare className="w-5 h-5" />
-                    </div>
-                    <H2>회사 정보</H2>
-                    <Badge variant="secondary">추가 정보</Badge>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                    {/* 회사 규모 */}
-                    <Select
-                        id="company-size"
-                        label="회사 규모"
-                        placeholder="회사 규모 선택"
-                        value={formData.companySize}
-                        onChange={(value) => handleInputChange('companySize', value)}
-                        options={companySizeOptions}
-                        clearable
-                    />
-
-                    {/* 회사 소개 */}
-                    <TextArea
-                        id="company-description"
-                        label="회사 소개"
-                        placeholder="회사의 비전, 미션, 주요 사업 분야 등을 소개해주세요"
-                        value={formData.companyDescription}
-                        onChange={(e) => handleInputChange('companyDescription', e.target.value)}
-                        rows={4}
-                    />
-
-                    {/* 기업 문화 */}
-                    <TextArea
-                        id="company-culture"
-                        label="기업 문화"
-                        placeholder="회사의 문화, 가치관, 근무 환경 등을 설명해주세요"
-                        value={formData.companyCulture}
-                        onChange={(e) => handleInputChange('companyCulture', e.target.value)}
-                        rows={3}
-                    />
-                </div>
-            </Card>
-
-            {/* ===== 채용 상세 정보 섹션 ===== */}
-            <Card variant="default" className="p-6">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-green-500 text-white rounded-lg">
-                        <Star className="w-5 h-5" />
-                    </div>
-                    <H2>채용 상세 정보</H2>
-                </div>
-
-                <div className="space-y-4">
-                    {/* 우대사항 */}
-                    <TextArea
-                        id="preferred-qualification"
-                        label="우대사항"
-                        placeholder="우대하는 경력, 자격증, 기술 등을 입력해주세요"
-                        value={formData.preferredQualification}
-                        onChange={(e) => handleInputChange('preferredQualification', e.target.value)}
-                        rows={3}
-                    />
-
-                    {/* 복리후생 */}
-                    <TextArea
-                        id="benefits"
-                        label="복리후생"
-                        placeholder="급여, 근무조건, 복지혜택 등을 입력해주세요"
-                        value={formData.benefits}
-                        onChange={(e) => handleInputChange('benefits', e.target.value)}
-                        rows={3}
-                    />
-                </div>
-            </Card>
-
-            {/* ===== 브랜딩 및 메시징 섹션 ===== */}
-            <Card variant="default" className="p-6">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-purple-500 text-white rounded-lg">
-                        <BotMessageSquare className="w-5 h-5" />
-                    </div>
-                    <H2>브랜딩 및 메시징</H2>
-                    <Badge variant="outline">고급 옵션</Badge>
-                </div>
-
-                <div className="space-y-4">
-                    {/* 브랜딩 톤 */}
-                    <Select
-                        id="branding-tone"
-                        label="브랜딩 톤 & 매너"
-                        placeholder="채용 공고의 전체적인 톤을 선택해주세요"
-                        value={formData.brandingTone}
-                        onChange={(value) => handleInputChange('brandingTone', value)}
-                        options={brandingToneOptions}
-                        clearable
-                    />
-
-                    {/* 핵심 강조 메시지 */}
-                    <TextArea
-                        id="key-message"
-                        label="핵심 강조 메시지"
-                        placeholder="이 채용 공고에서 가장 강조하고 싶은 메시지를 입력해주세요"
-                        value={formData.keyMessage}
-                        onChange={(e) => handleInputChange('keyMessage', e.target.value)}
-                        rows={3}
-                    />
-                </div>
             </Card>
 
             {/* ===== 기업 소개 이미지 업로드 섹션 ===== */}
@@ -820,6 +783,89 @@ export default function FormPage() {
                     이미지 업로드 ({uploadedImages.length}/5)
                 </Button>
             </Card>
+
+            {/* ===== 회사 정보 섹션 ===== */}
+            <Card variant="default" className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-blue-500 text-white rounded-lg">
+                        <BotMessageSquare className="w-5 h-5" />
+                    </div>
+                    <H2>회사 정보</H2>
+                    <Badge variant="secondary">추가 정보</Badge>
+                </div>
+
+                <div className="space-y-4 mb-6">
+                    {/* 회사 규모 */}
+                    <Select
+                        id="company-size"
+                        label="회사 규모"
+                        placeholder="회사 규모 선택"
+                        value={formData.companySize}
+                        onChange={(value) => handleInputChange('companySize', value)}
+                        options={companySizeOptions}
+                        clearable
+                    />
+
+                    {/* 회사 소개 */}
+                    <TextArea
+                        id="company-description"
+                        label="회사 소개"
+                        placeholder="회사의 비전, 미션, 주요 사업 분야 등을 소개해주세요"
+                        value={formData.companyDescription}
+                        onChange={(e) => handleInputChange('companyDescription', e.target.value)}
+                        rows={4}
+                    />
+
+                    {/* 기업 문화 */}
+                    <TextArea
+                        id="company-culture"
+                        label="기업 문화"
+                        placeholder="회사의 문화, 가치관, 근무 환경 등을 설명해주세요"
+                        value={formData.companyCulture}
+                        onChange={(e) => handleInputChange('companyCulture', e.target.value)}
+                        rows={3}
+                    />
+
+
+                </div>
+            </Card>
+
+
+            {/* ===== 브랜딩 및 메시징 섹션 ===== */}
+            <Card variant="default" className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-purple-500 text-white rounded-lg">
+                        <BotMessageSquare className="w-5 h-5" />
+                    </div>
+                    <H2>브랜딩 및 메시징</H2>
+                    <Badge variant="outline">고급 옵션</Badge>
+                </div>
+
+                <div className="space-y-4">
+                    {/* 브랜딩 톤 */}
+                    <Select
+                        id="branding-tone"
+                        label="브랜딩 톤 & 매너"
+                        placeholder="채용 공고의 전체적인 톤을 선택해주세요"
+                        value={formData.brandingTone}
+                        onChange={(value) => handleInputChange('brandingTone', value)}
+                        options={brandingToneOptions}
+                        clearable
+                    />
+
+                    {/* 핵심 강조 메시지 */}
+                    <TextArea
+                        id="key-message"
+                        label="핵심 강조 메시지"
+                        placeholder="이 채용 공고에서 가장 강조하고 싶은 메시지를 입력해주세요"
+                        value={formData.keyMessage}
+                        onChange={(e) => handleInputChange('keyMessage', e.target.value)}
+                        rows={3}
+                    />
+                </div>
+            </Card>
+
+
 
             {/* ===== AI 채팅 인터페이스 섹션 ===== */}
             <Card variant="default" className="p-6">
