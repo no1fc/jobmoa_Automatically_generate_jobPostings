@@ -126,3 +126,32 @@
     @apply transition-transform duration-200 hover:translate-y-[-2px];
   }
 }
+
+
+/*!* html2canvas 캡처 시 oklch 파싱 에러 회피용 *!
+.capture-compat {
+  !* 테마 토큰을 안전한 값으로 덮어쓰기 *!
+  --color-background: rgb(255 255 255);
+  --color-foreground: rgb(17 17 17);
+  --color-card: rgb(255 255 255);
+  --color-border: rgb(229 229 229);
+  --color-foreground-muted: rgb(113 113 122);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+!* 자식까지 강제 적용해서 oklch 참조를 피함 *!
+.capture-compat,
+.capture-compat * {
+  color: var(--color-foreground) !important;
+  background: var(--color-background) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: none !important;
+}
+
+!* 선택 영역도 안전하게 *!
+.capture-compat ::selection {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}*/

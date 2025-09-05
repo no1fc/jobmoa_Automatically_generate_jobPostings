@@ -18,6 +18,7 @@ export default function Grid({
                                  gap
                              }: GridProps) {
     const variantClasses = {
+        oneColumn: "grid grid-cols-1 gap-4",
         masonry: "columns-[236px] gap-4",
         standard: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
     };

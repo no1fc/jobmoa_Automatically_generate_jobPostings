@@ -2,7 +2,7 @@
 
 // React 훅과 아이콘, UI 컴포넌트 임포트
 import {useRef, useState} from 'react';
-import {BotMessageSquare, Building2, CheckCircle, ImageIcon, RefreshCw, Send, Star, Upload, X} from 'lucide-react';
+import {BotMessageSquare, Building2, CheckCircle, ImageIcon, RefreshCw, Send, Upload, X} from 'lucide-react';
 import {Body, BodyMuted, H2} from '@/app/components/ui/TypographyComponents';
 import Button from '@/app/components/ui/ButtonComponentWithVariants';
 import Input from '@/app/components/ui/InputComponentWithErrorHandling';
@@ -17,8 +17,12 @@ import Select, {
     industryOptions
 } from '@/app/components/ui/SelectComponent';
 import Image from "next/image";
+// 상단 import 목록에 추가
+import html2canvas from 'html2canvas-pro';
+
 
 //FIXME 임시 데이터
+/*
 const generateTestJobPostingData = (companyName: string = '코스모이엔지(주)', position: string = '자동차 제조 부품 영업물류 경력직') => {
     const testHtmlContent = `
             <div style="width: 100%; font-family: 'Pretendard', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif; background-color: #FFFFFF;">
@@ -40,9 +44,10 @@ const generateTestJobPostingData = (companyName: string = '코스모이엔지(�
     return {
         jobPosting: testHtmlContent,
         htmlContent: testHtmlContent,
-        id: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        id: `job_${Date.now()}_${Math.random().toString(36)}`
     };
 };
+*/
 
 // 채팅 메시지 인터페이스 정의
 interface ChatMessage {
@@ -71,7 +76,15 @@ interface FormData {
     keyMessage: string;             // 핵심 강조 메시지
     company_introduction_image?: File[];  // 기업 소개 이미지
     company_logo_image?: File;      // 기업 로고 파일
+
+    // === 추가: 선택 항목 ===
+    ceoName: string;                       // 대표자
+    businessRegistrationNumber: string;    // 사업자등록번호
+    recruiterEmail: string;                // 채용 담당자 이메일
+    recruiterPhone: string;                // 채용 담당자 전화
+    address: string;                       // 주소
 }
+
 
 // 브랜딩 톤 옵션
 const brandingToneOptions = [
@@ -92,13 +105,15 @@ interface JobPostingRequest {
 }
 
 interface JobPostingResponse {
-    success: boolean;
     data?: {
-        jobPosting: string;
-        htmlContent: string;
-        id: string;
+        message: string;
+        htmlCode: string;
+        metadata: {
+            applied_tone: string;
+            generated_keywords: string;
+        };
     };
-    error?: string;
+    status?: string;
 }
 
 export default function FormPage() {
@@ -107,6 +122,8 @@ export default function FormPage() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [showResult, setShowResult] = useState(false);
     const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
+    // FormPage 컴포넌트 내부 최상단 훅 영역에 추가
+    const jobPostingCaptureRef = useRef<HTMLDivElement>(null);
 
     /**
      * 필수 필드 검증 함수
@@ -147,29 +164,26 @@ export default function FormPage() {
 
         // 기업 소개 이미지들 추가
         requestData.uploadedImages.forEach((image, index) => {
-            formData.append(`company_introduction_image_${index}`, image);
+            formData.append(`company_introduction_image`, image);
         });
 
         //콘솔 로고 추가.
-        for (const [key, value] of formData.entries()) {
+/*        for (const [key, value] of formData.entries()) {
             console.log(`${key}: ${value}`);
-        }
-
-        console.log(formData);
-
-        console.log(JSON.stringify(formData))
+        }*/
 
         try {
             const responseData = await fetch('http://localhost:3001/api/gemini', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
+                body: formData
             })
 
-            return responseData.json();
+            console.log("데이터 송신완료");
+            const contentType = responseData.headers.get('content-type');
+            const data = contentType?.includes('application/json') ? await responseData.json() : await responseData.text();
 
+            console.log('API raw response:', data);
+            return data
             // return {
             //     success: true,
             //     data: {
@@ -181,8 +195,7 @@ export default function FormPage() {
         } catch (error) {
             console.error('채용 공고 생성 API 오류:', error);
             return {
-                success: false,
-                error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
+                status: "fail"
             };
         }
     };
@@ -207,14 +220,19 @@ export default function FormPage() {
 
             const result = await createJobPostingAPI(requestData);
 
-            if (result.success && result.data) {
-                setGeneratedJobPosting(result.data.jobPosting);
+            // console.log(result);
+            const { text } = result;
+            
+            const jsonData = JSON.parse(text);
+
+            if (jsonData.status == "success") {
+                setGeneratedJobPosting(jsonData.htmlCode);
                 setShowResult(true);
 
                 const successMessage: ChatMessage = {
                     id: messages.length + 1,
                     type: 'assistant',
-                    content: '🎉 채용 공고가 성공적으로 생성되었습니다! 아래에서 결과를 확인해주세요.',
+                    content: jsonData.message,
                     timestamp: new Date(),
                 };
                 setMessages(prev => [...prev, successMessage]);
@@ -225,7 +243,7 @@ export default function FormPage() {
                     });
                 }, 100);
             } else {
-                const errorMessage = result.error || '채용 공고 생성에 실패했습니다.';
+                const errorMessage = '채용 공고 생성에 실패했습니다.';
                 alert(errorMessage);
             }
         } catch (error) {
@@ -247,18 +265,7 @@ export default function FormPage() {
         let fileName = `채용공고_${formData.companyName}_${formData.position}`;
 
         if (format === 'html') {
-            content = `
-            <!DOCTYPE html>
-            <html lang="ko">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${formData.companyName} - ${formData.position} 채용</title>
-            </head>
-            <body>
-                ${generatedJobPosting}
-            </body>
-            </html>`;
+            // content = generatedJobPosting;
             mimeType = 'text/html';
             fileName += '.html';
         } else {
@@ -299,10 +306,18 @@ export default function FormPage() {
                         <Button variant="outline" size="sm" onClick={() => downloadJobPosting('html')}>
                             HTML 다운로드
                         </Button>
+                        <Button variant="outline" size="sm" onClick={() => downloadJobPostingImage('png')}>
+                            PNG 다운로드
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => downloadJobPostingImage('jpg')}>
+                            JPG 다운로드
+                        </Button>
                     </div>
+
                 </div>
 
                 <div
+                    ref={jobPostingCaptureRef}
                     className="bg-card border border-border rounded-lg p-6 max-h-96 overflow-y-auto"
                     dangerouslySetInnerHTML={{ __html: generatedJobPosting }}
                 />
@@ -314,21 +329,72 @@ export default function FormPage() {
                     }}>
                         다시 생성하기
                     </Button>
-                    <Button variant="primary" onClick={() => {
+{/*                    <Button variant="primary" onClick={() => {
                         alert('사람인, 잡코리아 등의 채용 사이트 연동 기능을 추가할 예정입니다.');
                     }}>
                         채용 사이트에 등록하기
-                    </Button>
+                    </Button>*/}
                 </div>
             </Card>
         );
     };
 
+    // PNG/JPG 이미지 다운로드 함수
+    const downloadJobPostingImage = async (format: 'png' | 'jpg') => {
+        if (!generatedJobPosting) return;
+        const node = jobPostingCaptureRef.current;
+        if (!node) return;
+
+        // 스크롤 영역 전체 캡처를 위해 임시로 스타일 조정
+        const prevMaxHeight = node.style.maxHeight;
+        const prevOverflow = node.style.overflow;
+        // oklch 파싱 이슈 회피용 호환 클래스 적용
+        node.classList.add('capture-compat');
+        node.style.maxHeight = 'none';
+        node.style.overflow = 'visible';
+
+        try {
+            const canvas = await html2canvas(node, {
+                useCORS: true,                           // 외부 이미지(CORS) 허용 시도
+                backgroundColor: format === 'jpg' ? '#ffffff' : null, // JPG는 투명 불가
+                scale: Math.max(2, window.devicePixelRatio || 1),     // 선명도 향상
+                logging: false,
+            });
+
+            const mime = format === 'png' ? 'image/png' : 'image/jpeg';
+            const fileName = `채용공고_${formData.companyName}_${formData.position}.${format}`;
+
+            canvas.toBlob(
+                (blob) => {
+                    if (!blob) return;
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                },
+                mime,
+                format === 'jpg' ? 0.92 : undefined // JPG 품질(0~1)
+            );
+        } finally {
+            // 원복
+            node.classList.remove('capture-compat');
+
+            // 원래 스타일 복원
+            node.style.maxHeight = prevMaxHeight;
+            node.style.overflow = prevOverflow;
+        }
+    };
+
+
     // AI 챗봇의 초기 환영 메시지 정의
     const chatBotStartMessage: ChatMessage = {
         id: 1,
         type: 'assistant',
-        content: '안녕하세요! 채용 공고 작성을 도와드리겠습니다. 회사명과 채용하고자 하는 포지션을 알려주세요.',
+        content: '안녕하세요! 채용 공고 작성을 도와드리겠습니다.',
         timestamp: new Date(),
     };
 
@@ -339,7 +405,7 @@ export default function FormPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [logoFile, setLogoFile] = useState<File | null>(null);
 
-    // 폼 입력 데이터 상태
+// 폼 입력 데이터 상태
     const [formData, setFormData] = useState<FormData>({
         companyName: '',
         companyType: '',
@@ -357,8 +423,16 @@ export default function FormPage() {
         brandingTone: '',
         keyMessage: '',
         company_introduction_image: [],
-        company_logo_image: undefined
+        company_logo_image: undefined,
+
+        // === 추가: 선택 항목 초기값 ===
+        ceoName: '',
+        businessRegistrationNumber: '',
+        recruiterEmail: '',
+        recruiterPhone: '',
+        address: '',
     });
+
 
     // === ref 객체들 ===
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -485,9 +559,17 @@ export default function FormPage() {
             brandingTone: '',
             keyMessage: '',
             company_introduction_image: [],
-            company_logo_image: undefined
+            company_logo_image: undefined,
+
+            // === 추가: 선택 항목 초기화 ===
+            ceoName: '',
+            businessRegistrationNumber: '',
+            recruiterEmail: '',
+            recruiterPhone: '',
+            address: '',
         });
     };
+
 
     return (
         <div className="space-y-6">
@@ -527,8 +609,8 @@ export default function FormPage() {
                     </div>
                 </div>
 
-                {/* 회사명과 채용 직무 */}
-                <Grid columns={{ default: 1, md: 2 }} gap="md" className="mb-6">
+                {/* === 추가: 연락/사업자 정보 === */}
+                <Grid columns={{ default: 1, md: 3 }} gap="md" className="mb-6">
                     <Input
                         id="companyName"
                         label="회사명"
@@ -538,12 +620,56 @@ export default function FormPage() {
                         error={formErrors.companyName as string}
                     />
                     <Input
+                        id="ceoName"
+                        label="대표자"
+                        placeholder="대표자 성함을 입력해주세요"
+                        value={formData.ceoName}
+                        onChange={(e) => handleInputChange('ceoName', e.target.value)}
+                    />
+                    <Input
+                        id="businessRegistrationNumber"
+                        label="사업자등록번호"
+                        placeholder="예: 123-45-67890"
+                        value={formData.businessRegistrationNumber}
+                        onChange={(e) => handleInputChange('businessRegistrationNumber', e.target.value)}
+                    />
+                </Grid>
+
+                <Grid className="mb-6 " variant="oneColumn">
+                    <Input
+                        id="address"
+                        label="주소"
+                        placeholder="사업장 주소를 입력해주세요"
+                        value={formData.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                    />
+                </Grid>
+
+
+                {/* 채용 직무 및 담당자 정보 */}
+                <Grid columns={{ default: 1, md: 2 }} gap="md" className="mb-6">
+                    <Input
                         id="position"
                         label="채용 직무"
                         placeholder="채용하고자 하는 직무를 입력해주세요"
                         value={formData.position}
                         onChange={(e) => handleInputChange('position', e.target.value)}
                         error={formErrors.position as string}
+                    />
+                    <Input
+                        id="recruiterEmail"
+                        label="채용 담당자 이메일"
+                        placeholder="예: recruit@example.com"
+                        value={formData.recruiterEmail}
+                        onChange={(e) => handleInputChange('recruiterEmail', e.target.value)}
+                        type="email"
+                    />
+                    <Input
+                        id="recruiterPhone"
+                        label="채용 담당자 전화"
+                        placeholder="예: 010-1234-5678"
+                        value={formData.recruiterPhone}
+                        onChange={(e) => handleInputChange('recruiterPhone', e.target.value)}
                     />
                 </Grid>
 
@@ -583,6 +709,7 @@ export default function FormPage() {
                     />
                 </Grid>
 
+
                 {/* 자격 요건 (필수) */}
                 <TextArea
                     id="requirements"
@@ -593,116 +720,6 @@ export default function FormPage() {
                     error={formErrors.requirements as string}
                     rows={4}
                 />
-            </Card>
-
-            {/* ===== 회사 정보 섹션 ===== */}
-            <Card variant="default" className="p-6">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-blue-500 text-white rounded-lg">
-                        <BotMessageSquare className="w-5 h-5" />
-                    </div>
-                    <H2>회사 정보</H2>
-                    <Badge variant="secondary">추가 정보</Badge>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                    {/* 회사 규모 */}
-                    <Select
-                        id="company-size"
-                        label="회사 규모"
-                        placeholder="회사 규모 선택"
-                        value={formData.companySize}
-                        onChange={(value) => handleInputChange('companySize', value)}
-                        options={companySizeOptions}
-                        clearable
-                    />
-
-                    {/* 회사 소개 */}
-                    <TextArea
-                        id="company-description"
-                        label="회사 소개"
-                        placeholder="회사의 비전, 미션, 주요 사업 분야 등을 소개해주세요"
-                        value={formData.companyDescription}
-                        onChange={(e) => handleInputChange('companyDescription', e.target.value)}
-                        rows={4}
-                    />
-
-                    {/* 기업 문화 */}
-                    <TextArea
-                        id="company-culture"
-                        label="기업 문화"
-                        placeholder="회사의 문화, 가치관, 근무 환경 등을 설명해주세요"
-                        value={formData.companyCulture}
-                        onChange={(e) => handleInputChange('companyCulture', e.target.value)}
-                        rows={3}
-                    />
-                </div>
-            </Card>
-
-            {/* ===== 채용 상세 정보 섹션 ===== */}
-            <Card variant="default" className="p-6">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-green-500 text-white rounded-lg">
-                        <Star className="w-5 h-5" />
-                    </div>
-                    <H2>채용 상세 정보</H2>
-                </div>
-
-                <div className="space-y-4">
-                    {/* 우대사항 */}
-                    <TextArea
-                        id="preferred-qualification"
-                        label="우대사항"
-                        placeholder="우대하는 경력, 자격증, 기술 등을 입력해주세요"
-                        value={formData.preferredQualification}
-                        onChange={(e) => handleInputChange('preferredQualification', e.target.value)}
-                        rows={3}
-                    />
-
-                    {/* 복리후생 */}
-                    <TextArea
-                        id="benefits"
-                        label="복리후생"
-                        placeholder="급여, 근무조건, 복지혜택 등을 입력해주세요"
-                        value={formData.benefits}
-                        onChange={(e) => handleInputChange('benefits', e.target.value)}
-                        rows={3}
-                    />
-                </div>
-            </Card>
-
-            {/* ===== 브랜딩 및 메시징 섹션 ===== */}
-            <Card variant="default" className="p-6">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-purple-500 text-white rounded-lg">
-                        <BotMessageSquare className="w-5 h-5" />
-                    </div>
-                    <H2>브랜딩 및 메시징</H2>
-                    <Badge variant="outline">고급 옵션</Badge>
-                </div>
-
-                <div className="space-y-4">
-                    {/* 브랜딩 톤 */}
-                    <Select
-                        id="branding-tone"
-                        label="브랜딩 톤 & 매너"
-                        placeholder="채용 공고의 전체적인 톤을 선택해주세요"
-                        value={formData.brandingTone}
-                        onChange={(value) => handleInputChange('brandingTone', value)}
-                        options={brandingToneOptions}
-                        clearable
-                    />
-
-                    {/* 핵심 강조 메시지 */}
-                    <TextArea
-                        id="key-message"
-                        label="핵심 강조 메시지"
-                        placeholder="이 채용 공고에서 가장 강조하고 싶은 메시지를 입력해주세요"
-                        value={formData.keyMessage}
-                        onChange={(e) => handleInputChange('keyMessage', e.target.value)}
-                        rows={3}
-                    />
-                </div>
             </Card>
 
             {/* ===== 기업 소개 이미지 업로드 섹션 ===== */}
@@ -766,6 +783,89 @@ export default function FormPage() {
                     이미지 업로드 ({uploadedImages.length}/5)
                 </Button>
             </Card>
+
+            {/* ===== 회사 정보 섹션 ===== */}
+            <Card variant="default" className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-blue-500 text-white rounded-lg">
+                        <BotMessageSquare className="w-5 h-5" />
+                    </div>
+                    <H2>회사 정보</H2>
+                    <Badge variant="secondary">추가 정보</Badge>
+                </div>
+
+                <div className="space-y-4 mb-6">
+                    {/* 회사 규모 */}
+                    <Select
+                        id="company-size"
+                        label="회사 규모"
+                        placeholder="회사 규모 선택"
+                        value={formData.companySize}
+                        onChange={(value) => handleInputChange('companySize', value)}
+                        options={companySizeOptions}
+                        clearable
+                    />
+
+                    {/* 회사 소개 */}
+                    <TextArea
+                        id="company-description"
+                        label="회사 소개"
+                        placeholder="회사의 비전, 미션, 주요 사업 분야 등을 소개해주세요"
+                        value={formData.companyDescription}
+                        onChange={(e) => handleInputChange('companyDescription', e.target.value)}
+                        rows={4}
+                    />
+
+                    {/* 기업 문화 */}
+                    <TextArea
+                        id="company-culture"
+                        label="기업 문화"
+                        placeholder="회사의 문화, 가치관, 근무 환경 등을 설명해주세요"
+                        value={formData.companyCulture}
+                        onChange={(e) => handleInputChange('companyCulture', e.target.value)}
+                        rows={3}
+                    />
+
+
+                </div>
+            </Card>
+
+
+            {/* ===== 브랜딩 및 메시징 섹션 ===== */}
+            <Card variant="default" className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-purple-500 text-white rounded-lg">
+                        <BotMessageSquare className="w-5 h-5" />
+                    </div>
+                    <H2>브랜딩 및 메시징</H2>
+                    <Badge variant="outline">고급 옵션</Badge>
+                </div>
+
+                <div className="space-y-4">
+                    {/* 브랜딩 톤 */}
+                    <Select
+                        id="branding-tone"
+                        label="브랜딩 톤 & 매너"
+                        placeholder="채용 공고의 전체적인 톤을 선택해주세요"
+                        value={formData.brandingTone}
+                        onChange={(value) => handleInputChange('brandingTone', value)}
+                        options={brandingToneOptions}
+                        clearable
+                    />
+
+                    {/* 핵심 강조 메시지 */}
+                    <TextArea
+                        id="key-message"
+                        label="핵심 강조 메시지"
+                        placeholder="이 채용 공고에서 가장 강조하고 싶은 메시지를 입력해주세요"
+                        value={formData.keyMessage}
+                        onChange={(e) => handleInputChange('keyMessage', e.target.value)}
+                        rows={3}
+                    />
+                </div>
+            </Card>
+
+
 
             {/* ===== AI 채팅 인터페이스 섹션 ===== */}
             <Card variant="default" className="p-6">

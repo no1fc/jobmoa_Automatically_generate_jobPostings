@@ -21,7 +21,7 @@ export default function ChatFormPage() {
                     </LinkComponent>
                 </div>
 
-                <Card variant="hover" className="max-w-4xl mx-auto overflow-hidden">
+                <Card variant="hover" className="max-w-5xl mx-auto overflow-hidden">
                     <div className="text-center p-8 bg-card border-b border-border">
                         <H1 className="mb-2">채용 공고 생성</H1>
                         <Body className="text-foreground-muted max-w-2xl mx-auto">
