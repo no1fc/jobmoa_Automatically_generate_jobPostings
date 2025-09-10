@@ -78,7 +78,7 @@ function HeroSection() {
                         </div>
                         <div className="p-2">
                             <Image
-                                src="/mainPageImage/ChatJobmoa_create_gemini.png"
+                                src="./mainPageImage/ChatJobmoa_create_gemini.png"
                                 alt="AI 챗봇 인터페이스"
                                 width={800}
                                 height={500}
@@ -142,17 +142,17 @@ function HowItWorksSection() {
         {
             title: "기본 정보 입력",
             description: "채용하려는 직무, 필요한 기술, 경력 수준 등을 챗봇에게 알려주세요. 회사 이미지도 함께 업로드할 수 있습니다.",
-            imgSrc: "/mainPageImage/Default_Text_Input_gemini.png",
+            imgSrc: "./mainPageImage/Default_Text_Input_gemini.png",
         },
         {
             title: "AI 분석 및 생성",
             description: "AI가 입력된 정보와 이미지를 분석하여 최적화된 채용 공고를 자동으로 생성합니다.",
-            imgSrc: "/mainPageImage/Analysis_and_Generation_gemini.png",
+            imgSrc: "./mainPageImage/Analysis_and_Generation_gemini.png",
         },
         {
             title: "검토 및 완성",
             description: "생성된 공고를 검토하고 필요시 수정하여 완벽한 채용 공고를 완성합니다.",
-            imgSrc: "/mainPageImage/Success_image_gemini.png",
+            imgSrc: "./mainPageImage/Success_image_gemini.png",
         },
     ];
 
