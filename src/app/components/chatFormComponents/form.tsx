@@ -20,7 +20,6 @@ import Image from "next/image";
 // 상단 import 목록에 추가
 import html2canvas from 'html2canvas-pro';
 
-
 //FIXME 임시 데이터
 /*
 const generateTestJobPostingData = (companyName: string = '코스모이엔지(주)', position: string = '자동차 제조 부품 영업물류 경력직') => {
@@ -59,6 +58,7 @@ interface ChatMessage {
 
 // 폼 데이터 인터페이스 정의 (인터페이스에 맞게 수정)
 interface FormData {
+    year: string;                   // 작성년도(필수사항)
     companyName: string;            // 회사명 (필수사항)
     companyType: string;            // 기업 형태 (필수사항)
     industry: string;               // 업종 (필수사항)
@@ -104,16 +104,30 @@ interface JobPostingRequest {
     uploadedImages: File[];
 }
 
+// 응답 타입 보완: text 래핑과 비래핑 모두 지원
 interface JobPostingResponse {
+    // 서버가 { text: "<JSON 문자열>" } 형태로 줄 때 사용
+    text?: string;
+
+    // 비래핑(평범한 JSON) 형태로 오는 경우도 대비
+    status?: 'success' | 'fail';
+    message?: string;
+    htmlCode?: string;
+    metadata?: {
+        applied_tone: string;
+        generated_keywords: string[] | string;
+    };
+
+    // 혹시 data 래핑 케이스도 대비
     data?: {
         message: string;
         htmlCode: string;
         metadata: {
             applied_tone: string;
-            generated_keywords: string;
+            generated_keywords: string[] | string;
         };
+        status?: 'success' | 'fail';
     };
-    status?: string;
 }
 
 export default function FormPage() {
@@ -168,9 +182,9 @@ export default function FormPage() {
         });
 
         //콘솔 로고 추가.
-/*        for (const [key, value] of formData.entries()) {
+        for (const [key, value] of formData.entries()) {
             console.log(`${key}: ${value}`);
-        }*/
+        }
 
         try {
             const responseData = await fetch('http://localhost:3001/api/gemini', {
@@ -184,14 +198,6 @@ export default function FormPage() {
 
             console.log('API raw response:', data);
             return data
-            // return {
-            //     success: true,
-            //     data: {
-            //         jobPosting: generateTestJobPostingData().jobPosting,
-            //         htmlContent: generateTestJobPostingData().htmlContent,
-            //         id: generateTestJobPostingData().id
-            //     }
-            // };
         } catch (error) {
             console.error('채용 공고 생성 API 오류:', error);
             return {
@@ -220,31 +226,69 @@ export default function FormPage() {
 
             const result = await createJobPostingAPI(requestData);
 
-            // console.log(result);
-            const { text } = result;
-            
-            const jsonData = JSON.parse(text);
+            // 1) 서버가 { text: "<JSON 문자열>" } 형태로 보낸 경우
+            // 2) 혹은 result 자체가 문자열(text/plain)로 온 경우까지 처리
+            let jsonData: any = null;
 
-            if (jsonData.status == "success") {
-                setGeneratedJobPosting(jsonData.htmlCode);
+            try {
+                const rawText =
+                    typeof result === 'string'
+                        ? result
+                        : typeof result?.text === 'string'
+                            ? result.text
+                            : null;
+
+                if (typeof rawText === 'string') {
+                    jsonData = JSON.parse(rawText);
+                } else {
+                    // 이미 평범한 JSON으로 온 경우(비래핑)
+                    jsonData = result;
+                }
+            } catch (e) {
+                console.error('응답 파싱 실패:', e, result);
+                jsonData = null;
+            }
+
+            // 최종적으로 상태/본문 추출 (data 래핑/비래핑 모두 지원)
+            const status: string | undefined =
+                jsonData?.status ??
+                jsonData?.data?.status ??
+                result?.status ??
+                result?.data?.status;
+
+            const htmlCode: string | undefined =
+                jsonData?.htmlCode ??
+                jsonData?.data?.htmlCode ??
+                result?.htmlCode ??
+                result?.data?.htmlCode;
+
+            const message: string =
+                jsonData?.message ??
+                jsonData?.data?.message ??
+                result?.message ??
+                result?.data?.message ??
+                '생성이 완료되었습니다.';
+
+            if (status === 'success' && typeof htmlCode === 'string' && htmlCode.trim()) {
+                setGeneratedJobPosting(htmlCode);
                 setShowResult(true);
 
                 const successMessage: ChatMessage = {
                     id: messages.length + 1,
                     type: 'assistant',
-                    content: jsonData.message,
+                    content: message,
                     timestamp: new Date(),
                 };
-                setMessages(prev => [...prev, successMessage]);
+                setMessages((prev) => [...prev, successMessage]);
 
                 setTimeout(() => {
                     document.getElementById('job-posting-result')?.scrollIntoView({
-                        behavior: 'smooth'
+                        behavior: 'smooth',
                     });
                 }, 100);
             } else {
-                const errorMessage = '채용 공고 생성에 실패했습니다.';
-                alert(errorMessage);
+                console.error('채용 공고 생성 실패 - 응답 내용 확인 필요:', { jsonData, result });
+                alert('채용 공고 생성에 실패했습니다.');
             }
         } catch (error) {
             console.error('채용 공고 생성 오류:', error);
@@ -253,6 +297,7 @@ export default function FormPage() {
             setIsGenerating(false);
         }
     };
+
 
     /**
      * 생성된 채용 공고 다운로드 함수
@@ -407,6 +452,7 @@ export default function FormPage() {
 
 // 폼 입력 데이터 상태
     const [formData, setFormData] = useState<FormData>({
+        year: '',
         companyName: '',
         companyType: '',
         industry: '',
@@ -543,6 +589,7 @@ export default function FormPage() {
         setLogoFile(null);
         setFormErrors({});
         setFormData({
+            year: '',
             companyName: '',
             companyType: '',
             industry: '',
@@ -609,6 +656,12 @@ export default function FormPage() {
                     </div>
                 </div>
 
+                <Input
+                    type="hidden"
+                    id="year"
+                    value={new Date().getFullYear()}
+                    error={formErrors.year as string}
+                />
                 {/* === 추가: 연락/사업자 정보 === */}
                 <Grid columns={{ default: 1, md: 3 }} gap="md" className="mb-6">
                     <Input
@@ -874,7 +927,7 @@ export default function FormPage() {
                         <BotMessageSquare className="w-5 h-5" />
                     </div>
                     <H2>AI 채팅</H2>
-                    <Badge variant="secondary">실시간 상담</Badge>
+                    <Badge variant="secondary">수정 메시지</Badge>
                 </div>
 
                 {/* 메시지 표시 영역 */}

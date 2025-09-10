@@ -5,7 +5,7 @@ import {ReactNode} from 'react';
 interface GridProps {
     children: ReactNode,
     className?: string,
-    variant?: 'masonry' | 'standard',
+    variant?: 'oneColumn' | 'masonry' | 'standard',
     columns?: { default: number; md: number },
     gap?: string
 }
