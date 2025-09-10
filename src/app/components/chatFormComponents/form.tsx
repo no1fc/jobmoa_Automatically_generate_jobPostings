@@ -228,7 +228,7 @@ export default function FormPage() {
 
             // 1) 서버가 { text: "<JSON 문자열>" } 형태로 보낸 경우
             // 2) 혹은 result 자체가 문자열(text/plain)로 온 경우까지 처리
-            let jsonData: any = null;
+            let jsonData;
 
             try {
                 const rawText =
