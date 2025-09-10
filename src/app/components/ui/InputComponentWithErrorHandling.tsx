@@ -8,6 +8,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export default function Input({
+                                type = 'text',
                                   label,
                                   error,
                                   className = '',
@@ -21,6 +22,7 @@ export default function Input({
                 </label>
             )}
             <input
+                type={type}
                 className={`
           w-full px-4 py-3 border-2 border-[#E1E1E1] rounded-xl text-sm
           focus:border-[#5472ff] focus:shadow-[0_0_0_3px_rgba(84,114,255,0.1)] focus:outline-none
